@@ -4,6 +4,7 @@
 
 import io
 import os
+import pathlib
 import re
 import glob
 import warnings
@@ -81,6 +82,61 @@ def tiles_from_dir(root, cover=None, xyz=True, xyz_path=False, xyz_translate=Fal
         for path in paths:
             return path
 
+
+def images_from_dir(path, filetype):
+    path_to_images = pathlib.Path(path)
+    filetype = '.' + filetype
+    images = [img for img in path_to_images.iterdir() if img.suffix == filetype]
+    return images
+
+
+def index_labels(labels):
+    """
+    Parameters
+    ----------
+
+    labels:
+        Input list of strings
+
+    Returns
+    -------
+        a dictionary indexing the input list of strings
+    """
+    return { label: label_id for label_id, label in enumerate(set(labels))}
+
+
+def enumerate_image_labels(path, filetype):
+    """
+    Parameters
+    ----------
+
+    path:
+        Path to list of images of interest
+
+    filetype:
+        File type to list
+
+    Returns
+    -------
+        A list of tupples of the form of (image_id, label_id) which are
+        composed by an image id and a label id
+    """
+    images = images_from_dir(path, filetype)
+    number_label = []
+    labels = []
+
+    # index labels
+    for image in enumerate(images):
+        label = image[1].stem.split('_')[0]
+        labels.append(label)
+    labels_dictionary = index_labels(labels)
+
+    # index images
+    for image in enumerate(images):
+        image_id = image[0]
+        label = image[1].stem.split('_')[0]
+        number_label.append((image_id,labels_dictionary.get(label)))
+    return number_label
 
 def tile_from_xyz(root, x, y, z):
     """Retrieve a single tile from a slippy map dir."""

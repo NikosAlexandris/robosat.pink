@@ -5,7 +5,15 @@ import numpy as np
 import pathlib
 import torch.utils.data
 
-from robosat_pink.tiles import tiles_from_dir, tile_image_from_file, tile_label_from_file, tile_translate_from_file
+from robosat_pink.tiles import (
+    tiles_from_dir,
+    tile_image_from_file,
+    tile_label_from_file,
+    tile_translate_from_file,
+    images_from_dir,
+    index_labels,
+    enumerate_image_labels
+)
 from robosat_pink.da.core import to_normalized_tensor
 
 
@@ -44,24 +52,8 @@ class TestRGB(torch.utils.data.Dataset):
             self.tiles["labels"].sort(key=lambda tile: tile[0])
 
         assert len(self.tiles), "Empty Dataset"
-    
-    def images_from_dir(path, filetype):
-        path_to_images = pathlib.Path(path)
-        filetype = '.' + filetype
-        images = [img for img in path_to_images.iterdir() if img.suffix == filetype]
-        return images
 
-    def enumerate_image_labels(path, filetype):
-        images = images_from_dir(path, filetype)
-        number_label = []
-        for image in enumerate(images):
-            number = image[0]
-            label = image[1].stem.split('_')[0]
-            number_label.append((number,label))
-        return number_label
-        
-      
-    
+
     def __len__(self):
         return len(self.tiles[self.config["channels"][0]["name"]])
 
