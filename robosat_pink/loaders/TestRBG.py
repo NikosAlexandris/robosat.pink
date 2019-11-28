@@ -40,7 +40,7 @@ class TestRGB(torch.utils.data.Dataset):
         if self.mode == "train":
             path = os.path.join(self.root, "labels")
             #MODIFIED Change list of label masks to single class name.
-            self.tiles["labels"] = [(tile, label) for tile, path,label in tiles_from_dir_NOGIS(path)]
+            self.tiles["labels"] = [(number, label) for number, label in enumerate_image_labels(path, 'jpg')]
             self.tiles["labels"].sort(key=lambda tile: tile[0])
 
         assert len(self.tiles), "Empty Dataset"
