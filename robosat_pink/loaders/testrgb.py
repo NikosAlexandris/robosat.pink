@@ -12,6 +12,7 @@ from robosat_pink.tiles import (
     tile_translate_from_file,
     images_from_dir,
     index_labels,
+    enumerate_image_paths,
     enumerate_image_labels
 )
 from robosat_pink.da.core import to_normalized_tensor
@@ -36,8 +37,9 @@ class TestRGB(torch.utils.data.Dataset):
         for channel in config["channels"]:
             path = os.path.join(self.root, channel["name"])
             # Fill tiles dict without any GIS stuff
-            self.Tiles[channel["name"]] = [
-              (tile,path) in tiles_from_dir_NOGIS(path)
+            self.tiles[channel["name"]] = [
+              # (tile, path) for tile, path in enumerate_image_paths(path, cover=cover, xyz_path=True, xyz_translate=xyz_translate)
+              (tile, path) for tile, path in enumerate_image_paths(path, 'jpg')
               ]
             self.tiles[channel["name"]].sort(key=lambda tile: tile[0])
             num_channels += len(channel["bands"])
