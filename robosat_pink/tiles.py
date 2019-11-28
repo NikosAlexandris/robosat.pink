@@ -104,6 +104,18 @@ def index_labels(labels):
     """
     return { label: label_id for label_id, label in enumerate(set(labels))}
 
+def enumerate_image_paths(path, filetype):
+
+    images = images_from_dir(path, filetype)
+    number_path = []
+    paths = []
+
+    for image in enumerate(images):
+        image_id = image[0]
+        path = image[1].absolute()
+        paths.append(path)
+        number_path.append((image_id, path))
+    return number_path
 
 def enumerate_image_labels(path, filetype):
     """
