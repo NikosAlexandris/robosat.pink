@@ -39,15 +39,14 @@ class AlbunetNODECO(nn.Module):
         num_filters = 32
         num_channels = shape_in[0]
         num_classes = shape_out[0]
-
         super().__init__()
 
         try:
             pretrained = train_config["model"]["pretrained"]
         except:
             pretrained = False
-
-        self.resnet = resnet50(pretrained=pretrained)
+        pretrained=False
+        self.resnet = resnet50(pretrained=pretrained,num_classes=num_classes)
 
         assert num_channels
         if num_channels != 3:
@@ -58,42 +57,5 @@ class AlbunetNODECO(nn.Module):
             self.resnet.conv1 = nn.Conv2d(num_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
             self.resnet.conv1.weight = nn.Parameter(weights)
 
-        # No encoder reference, cf: https://github.com/pytorch/pytorch/issues/8392
-
-        #self.center = DecoderBlock(2048, num_filters * 8)
-
-        #self.dec0 = DecoderBlock(2048 + num_filters * 8, num_filters * 8)
-        #self.dec1 = DecoderBlock(1024 + num_filters * 8, num_filters * 8)
-        #self.dec2 = DecoderBlock(512 + num_filters * 8, num_filters * 2)
-        #self.dec3 = DecoderBlock(256 + num_filters * 2, num_filters * 2 * 2)
-        #self.dec4 = DecoderBlock(num_filters * 2 * 2, num_filters)
-        #self.dec5 = ConvRelu(num_filters, num_filters)
-
-        self.center = None
-        self.final = None
-
-    def forward(self, x):
-
-        enc0 = self.resnet.conv1(x)
-        enc0 = self.resnet.bn1(enc0)
-        enc0 = self.resnet.relu(enc0)
-        enc0 = self.resnet.maxpool(enc0)
-
-        enc1 = self.resnet.layer1(enc0)
-        enc2 = self.resnet.layer2(enc1)
-        enc3 = self.resnet.layer3(enc2)
-        enc4 = self.resnet.layer4(enc3)
-
-        avgpool = torch.nn.AdaptiveAvgPool2d((1,1))
-        dec = torch.nn.sigmoid(avgpool)
-
-        #center = self.center(nn.functional.max_pool2d(enc4, kernel_size=2, stride=2))
-
-        #dec0 = self.dec0(torch.cat([enc4, center], dim=1))
-        #dec1 = self.dec1(torch.cat([enc3, dec0], dim=1))
-        #dec2 = self.dec2(torch.cat([enc2, dec1], dim=1))
-        #dec3 = self.dec3(torch.cat([enc1, dec2], dim=1))
-        #dec4 = self.dec4(dec3)
-        #dec5 = self.dec5(dec4)
-
-        return self.final(dec)
+    def forward(self,x):
+        return self.resnet.forward(x)
