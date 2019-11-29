@@ -191,9 +191,7 @@ def process(loader, config, log, csv, epoch, device, nn, criterion, mode, optimi
             if mode == "train":
                 optimizer.zero_grad()
             outputs = nn(images)
-
-            assert outputs.size()[2:] == masks.size()[1:], "resolutions for predictions and masks are in sync"
-            assert outputs.size()[1] == len(config["classes"]), "classes for predictions and dataset are in sync"
+            masks=masks[:,0,0]
 
             loss = criterion(outputs, masks, config)
             if mode == "train":
