@@ -76,25 +76,20 @@ class TestRGB(torch.utils.data.Dataset):
                 assert tile == self.tiles[channel["name"]][i][0], "Dataset channel inconsistency"
                 tile, path = self.tiles[channel["name"]][i]
 
-            if self.mode == "predict_translate":
-                assert tile, "In predict_translate mode, data must be tiles"
-                image_channel = tile_translate_from_file(os.path.join(self.root, channel["name"]), tile, self.cover, bands)
-                assert image_channel is not None, "Dataset translate tile not retrieved"
-
-            else:
-                image_channel = tile_image_from_file(path, bands)
-                assert image_channel is not None, "Dataset channel {} not retrieved: {}".format(channel["name"], path)
+            image_channel = tile_image_from_file(path, bands)
+            assert image_channel is not None, "Dataset channel {} not retrieved: {}".format(channel["name"], path)
 
             image = np.concatenate((image, image_channel), axis=2) if image is not None else image_channel
 
         if self.mode == "train":
-            assert tile == self.tiles["labels"][i][0], "Dataset mask inconsistency"
-            mask = tile_label_from_file(self.tiles["labels"][i][1])
-            assert mask is not None, "Dataset mask not retrieved"
-
-            image, mask = to_normalized_tensor(self.config, self.shape_in[1:3], "train", image, mask)
+            label = np.full((image.shape[0],image.shape[1]),self.tiles["labels"][i][1])
+            #label = np.full()
+            #label = self.tiles["labels"][i][1]
+            assert label is not None, "Dataset label not retrieved"
+            
+            image, mask = to_normalized_tensor(self.config, self.shape_in[1:3], "train", image, mask=label)
             return image, mask, tile
 
         if self.mode in ["predict", "predict_translate"]:
             image = to_normalized_tensor(self.config, self.shape_in[1:3], "predict", image)
-            return image, torch.IntTensor([tile.x, tile.y, tile.z])
+            return image,path.name,tile
