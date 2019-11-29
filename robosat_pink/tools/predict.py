@@ -49,17 +49,18 @@ def predict(config, cover, args, palette, chkpt, nn, device, mode):
     assert len(loader), "Empty predict dataset directory. Check your path."
 
     tiled = []
-    for images, tiles in tqdm(loader, desc="Eval", unit="batch", ascii=True):
+    for images, path,tiles in tqdm(loader, desc="Eval", unit="batch", ascii=True):
 
         images = images.to(device)
         for tile, prob in zip(tiles, torch.nn.functional.softmax(nn(images), dim=1).data.cpu().numpy()):
-            x, y, z = list(map(int, tile))
-            mask = np.around(prob[1:, :, :]).astype(np.uint8).squeeze()
+            #x, y, z = list(map(int, tile))
+            mask = np.around(prob[1]).astype(np.uint8).squeeze()
             if mode == "predict":
-                tile_label_to_file(args.out, mercantile.Tile(x, y, z), palette, mask)
-            if mode == "predict_translate":
-                tile_translate_to_file(args.out, mercantile.Tile(x, y, z), palette, mask, config["model"]["ms"])
-            tiled.append(mercantile.Tile(x, y, z))
+                #tile_label_to_file(args.out, tile, palette, mask)
+                print(path[0],mask)
+            #if mode == "predict_translate":
+            #    tile_translate_to_file(args.out, mercantile.Tile(x, y, z), palette, mask, config["model"]["ms"])
+            tiled.append(tile)
 
     return tiled
 
