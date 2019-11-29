@@ -46,9 +46,9 @@ def to_normalized_tensor(config, ts, mode, image, mask=None):
     assert len(std) and len(mean)
     image.sub_(torch.as_tensor(mean, device=image.device)[:, None, None])
     image.div_(torch.as_tensor(std, device=image.device)[:, None, None])
-
     if mode == "train":
-        assert image is not None and mask is not None
+        #assert image is not None and mask is not None
+        assert image  is not None
         return image, mask
 
     elif mode == "predict":
